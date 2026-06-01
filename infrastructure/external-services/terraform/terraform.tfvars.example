@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and set values as needed.
+
+# Frontend hosting: set to true to create S3 + CloudFront for the frontend.
+enable_frontend_hosting = false
+
+# Magic-link email: set to your SES-verified sender address to send claim links by email.
+# Leave empty (or omit) to have the API return the link in the response (dev).
+# When set and you run terraform apply, AWS will send a verification email to this address;
+# after you verify it, Lambda can send magic-link emails from it.
+# ses_verified_sender = "noreply@yourdomain.com"
+
+# Optional: Cognito user IDs (sub) allowed to access admin endpoints (comma-separated).
+# admin_user_ids = ""
+
+# Optional: frontend URL for magic-link claim page (default: http://localhost:5173).
+# frontend_base_url = "http://localhost:5173"

@@ -1,0 +1,342 @@
+import { getCognitoAccessToken } from '../lib/auth';
+
+function getExternalBase(): string {
+  const external = (import.meta.env?.VITE_EXTERNAL_API_BASE_URL as string | undefined)?.trim();
+  if (external) return external.replace(/\/+$/, '');
+  const apiBase = (import.meta.env?.VITE_API_BASE_URL as string | undefined)?.trim();
+  if (!apiBase) throw new Error('VITE_EXTERNAL_API_BASE_URL or VITE_API_BASE_URL must be set');
+  return `${apiBase.replace(/\/+$/, '')}/external`;
+}
+
+const EXTERNAL_BASE = getExternalBase();
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = await getCognitoAccessToken();
+  if (token) h.Authorization = `Bearer ${token}`;
+  return h;
+}
+
+async function parseJsonSafe(res: Response): Promise<Record<string, unknown>> {
+  return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+}
+
+function buildError(data: Record<string, unknown>, fallback: string): Error {
+  const msg = (data.error as string) || (data.message as string) || fallback;
+  const detail = typeof data.detail === 'string' ? data.detail.trim() : '';
+  return new Error(detail ? `${msg} — ${detail}` : msg);
+}
+
+export interface MentorshipMatchingRunSummary {
+  runId?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  status?: string;
+  phase?: string;
+  triggerSource?: string;
+  snapshotSummary?: { pairCount?: number; mentorCount?: number } | null;
+}
+
+export interface MentorshipMatchingRunDetail {
+  accepted?: boolean;
+  requestId?: string;
+  queuedAt?: string;
+  runId?: string;
+  kind?: string;
+  status?: string;
+  phase?: string;
+  triggerSource?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  reset?: { ok?: boolean; deletedMatchRows?: number };
+  batch?: Record<string, unknown> | null;
+  snapshotSummary?: { pairCount?: number; mentorCount?: number };
+  snapshot?: {
+    pairs?: Array<Record<string, unknown>>;
+    mentors?: Array<Record<string, unknown>>;
+    pairCount?: number;
+  };
+  dryRun?: boolean;
+  generatedAt?: string;
+  pairCount?: number;
+  perMentorLimit?: number;
+  pairs?: Array<Record<string, unknown>>;
+  errors?: string[];
+}
+
+export interface MentorshipAdminLiveSnapshot {
+  pairs?: Array<Record<string, unknown>>;
+  mentors?: Array<Record<string, unknown>>;
+  pairCount?: number;
+}
+
+export interface MentorshipMatchingSchedule {
+  enabled?: boolean;
+  cronExpression?: string;
+  timezone?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  lastTriggeredAt?: string;
+  lastTriggeredSlot?: string;
+  persistenceEnabled?: boolean;
+  source?: string;
+}
+
+export interface MentorshipMenteeCapDiagnosticItem {
+  menteeUserId?: string;
+  syntheticCount?: number | null;
+  actualOpenedRows?: number;
+  hasSyntheticStateRow?: boolean;
+  driftDetected?: boolean;
+}
+
+export interface MentorshipMenteeCapDiagnosticsResult {
+  items?: MentorshipMenteeCapDiagnosticItem[];
+  driftCount?: number;
+  returned?: number;
+  limit?: number;
+  driftOnly?: boolean;
+  suggestionTtlHours?: number;
+  expiredSuggestionRows?: number;
+  activeSuggestionRows?: number;
+}
+
+export interface MentorshipMenteeCapRepairResult {
+  ok?: boolean;
+  repairedCount?: number;
+  failedCount?: number;
+  failedItems?: Array<{ menteeUserId?: string; error?: string }>;
+  scanned?: number;
+  driftOnly?: boolean;
+}
+
+export interface MentorshipRecycleExpiredResult {
+  ttlHours?: number;
+  processed?: number;
+  skipped?: number;
+  reassignedRows?: number;
+  autoReassignEnabled?: boolean;
+  disabled?: boolean;
+  limit?: number;
+  errors?: Array<Record<string, unknown>>;
+}
+
+export async function startMentorshipMatchingRun(body?: {
+  resetMatches?: boolean;
+  runBatchMatching?: boolean;
+  includeSnapshot?: boolean;
+  dryRun?: boolean;
+  dryRunPerMentorLimit?: number;
+}): Promise<MentorshipMatchingRunDetail> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/matching-runs`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      resetMatches: !!body?.resetMatches,
+      runBatchMatching: body?.runBatchMatching !== false,
+      includeSnapshot: body?.includeSnapshot === true,
+      dryRun: body?.dryRun === true,
+      dryRunPerMentorLimit: body?.dryRunPerMentorLimit ?? 1,
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to run mentorship matching');
+  return data as unknown as MentorshipMatchingRunDetail;
+}
+
+export async function listMentorshipMatchingRuns(limit = 25): Promise<{
+  runs: MentorshipMatchingRunSummary[];
+  persistenceEnabled?: boolean;
+}> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/matching-runs?limit=${encodeURIComponent(String(limit))}`, {
+    headers: await authHeaders(),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load matching run history');
+  return {
+    runs: ((data.runs as MentorshipMatchingRunSummary[]) || []).slice(),
+    persistenceEnabled: Boolean(data.persistenceEnabled),
+  };
+}
+
+export async function getLatestMentorshipMatchingRun(): Promise<{
+  run?: MentorshipMatchingRunDetail;
+  persistenceEnabled?: boolean;
+}> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/matching-runs/latest`, {
+    headers: await authHeaders(),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load latest matching run');
+  return {
+    run: data.run as MentorshipMatchingRunDetail,
+    persistenceEnabled: Boolean(data.persistenceEnabled),
+  };
+}
+
+export async function getMentorshipMatchingRunById(runId: string): Promise<{
+  run?: MentorshipMatchingRunDetail;
+  persistenceEnabled?: boolean;
+}> {
+  const rid = String(runId || '').trim();
+  if (!rid) throw new Error('runId is required');
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/matching-runs/${encodeURIComponent(rid)}`, {
+    headers: await authHeaders(),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load matching run');
+  return {
+    run: data.run as MentorshipMatchingRunDetail,
+    persistenceEnabled: Boolean(data.persistenceEnabled),
+  };
+}
+
+export async function getMentorshipAdminLiveSnapshot(): Promise<{
+  snapshot?: MentorshipAdminLiveSnapshot;
+}> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/matches-live`, {
+    headers: await authHeaders(),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load live mentorship matches');
+  return {
+    snapshot: data.snapshot as MentorshipAdminLiveSnapshot,
+  };
+}
+
+export async function getMentorshipMatchingSchedule(): Promise<MentorshipMatchingSchedule> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/schedule`, {
+    headers: await authHeaders(),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load mentorship schedule');
+  return data as MentorshipMatchingSchedule;
+}
+
+export async function putMentorshipMatchingSchedule(body: {
+  enabled: boolean;
+  cronExpression?: string;
+  timezone?: string;
+}): Promise<MentorshipMatchingSchedule> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/schedule`, {
+    method: 'PUT',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      enabled: !!body.enabled,
+      cronExpression: body.cronExpression,
+      timezone: body.timezone,
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to update mentorship schedule');
+  return data as MentorshipMatchingSchedule;
+}
+
+export async function getMentorshipMenteeCapDiagnostics(params?: {
+  menteeUserId?: string;
+  driftOnly?: boolean;
+  limit?: number;
+}): Promise<MentorshipMenteeCapDiagnosticsResult> {
+  const qs = new URLSearchParams();
+  if (params?.menteeUserId) qs.set('menteeUserId', params.menteeUserId.trim());
+  if (params?.driftOnly !== undefined) qs.set('driftOnly', String(Boolean(params.driftOnly)));
+  if (params?.limit !== undefined) qs.set('limit', String(params.limit));
+  const url = `${EXTERNAL_BASE}/mentorship/admin/mentee-cap-diagnostics${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const res = await fetch(url, { headers: await authHeaders() });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to load mentee cap diagnostics');
+  return data as MentorshipMenteeCapDiagnosticsResult;
+}
+
+export async function repairMentorshipMenteeCapDiagnostics(body?: {
+  menteeUserId?: string;
+  driftOnly?: boolean;
+  limit?: number;
+}): Promise<MentorshipMenteeCapRepairResult> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/mentee-cap-diagnostics/repair`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      menteeUserId: body?.menteeUserId?.trim() || undefined,
+      driftOnly: body?.driftOnly !== false,
+      limit: body?.limit ?? 200,
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to repair mentee cap diagnostics');
+  return data as MentorshipMenteeCapRepairResult;
+}
+
+/** Clear all match rows for a mentee, then create one SUGGESTED row to the given mentor (admin). */
+export async function postMentorshipAdminPairSuggest(body: {
+  mentorUserId: string;
+  menteeUserId: string;
+}): Promise<{
+  ok?: boolean;
+  reset?: { menteeUserId?: string; deletedRows?: number };
+  suggested?: Record<string, unknown>;
+  error?: string;
+}> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/pair-suggest`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      mentorUserId: (body.mentorUserId || '').trim(),
+      menteeUserId: (body.menteeUserId || '').trim(),
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, (data as { error?: string })?.error || 'Pair suggest failed');
+  return data as { ok?: boolean; reset?: { menteeUserId?: string; deletedRows?: number }; suggested?: Record<string, unknown> };
+}
+
+/** Resolve profiles by email aliases, then reset mentee rows and create one SUGGESTED row (admin). */
+export async function postMentorshipAdminPairSuggestByEmail(body: {
+  mentorEmail: string;
+  menteeEmail: string;
+}): Promise<{
+  ok?: boolean;
+  reset?: { menteeUserId?: string; deletedRows?: number };
+  suggested?: Record<string, unknown>;
+  resolved?: {
+    mentorUserId?: string;
+    mentorEmail?: string;
+    menteeUserId?: string;
+    menteeEmail?: string;
+  };
+  error?: string;
+}> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/pair-suggest-by-email`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      mentorEmail: (body.mentorEmail || '').trim().toLowerCase(),
+      menteeEmail: (body.menteeEmail || '').trim().toLowerCase(),
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, (data as { error?: string })?.error || 'Pair suggest by email failed');
+  return data as {
+    ok?: boolean;
+    reset?: { menteeUserId?: string; deletedRows?: number };
+    suggested?: Record<string, unknown>;
+    resolved?: { mentorUserId?: string; mentorEmail?: string; menteeUserId?: string; menteeEmail?: string };
+  };
+}
+
+export async function postMentorshipAdminRecycleExpired(body?: {
+  limit?: number;
+  autoReassign?: boolean;
+}): Promise<MentorshipRecycleExpiredResult> {
+  const res = await fetch(`${EXTERNAL_BASE}/mentorship/admin/recycle-expired`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify({
+      limit: body?.limit ?? 200,
+      autoReassign: body?.autoReassign !== false,
+    }),
+  });
+  const data = await parseJsonSafe(res);
+  if (!res.ok) throw buildError(data, 'Failed to recycle expired mentorship suggestions');
+  return data as MentorshipRecycleExpiredResult;
+}
