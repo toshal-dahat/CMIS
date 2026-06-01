@@ -1,0 +1,44 @@
+{
+  "name": "team-reveille-student-core",
+  "version": "0.1.0",
+  "description": "Team Reveille Student Core - Serverless backend (Lambda, DynamoDB, Cognito)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "deploy": "serverless deploy",
+    "deploy:prod": "serverless deploy --stage prod",
+    "invoke:local": "serverless invoke local",
+    "test": "echo \"No tests defined\" && exit 0"
+  },
+  "keywords": [
+    "serverless",
+    "lambda",
+    "dynamodb",
+    "cognito",
+    "student-profiles"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1001.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1001.0",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/client-sts": "^3.1001.0",
+    "@aws-sdk/client-textract": "^3.1001.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0",
+    "aws-jwt-verify": "^4.0.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "qrcode": "^1.5.4",
+    "serverless-http": "^3.2.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "serverless": "^3.38.0",
+    "serverless-dotenv-plugin": "^6.0.0"
+  }
+}
