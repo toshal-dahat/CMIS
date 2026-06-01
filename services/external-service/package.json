@@ -1,0 +1,17 @@
+{
+  "name": "cmis-external-service",
+  "version": "1.0.0",
+  "description": "CMIS External Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests defined\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {},
+  "keywords": ["lambda", "external"],
+  "author": "",
+  "license": "MIT"
+}
