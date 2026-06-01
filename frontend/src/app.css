@@ -1,0 +1,92 @@
+/* TAMU CMIS – Global theme (maroon + gold accent) */
+:root {
+  /* TAMU-inspired palette */
+  --maroon: #500000;
+  --maroon-dark: #3d0000;
+  --maroon-light: #6b0f0f;
+  --maroon-muted: rgba(80, 0, 0, 0.08);
+  --gold: #c68c53;
+  --gold-light: rgba(198, 140, 83, 0.15);
+  /* Neutrals */
+  --bg: #faf8f6;
+  --bg-warm: #f5f1ed;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #5c5c5c;
+  --border: #e8e4e0;
+  --border-focus: rgba(80, 0, 0, 0.35);
+  /* Typography */
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+  /* Layout */
+  --header-height: 4rem;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(80, 0, 0, 0.06);
+  --shadow: 0 4px 12px rgba(80, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(80, 0, 0, 0.1);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  font-weight: 500;
+  color: var(--maroon);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--maroon-dark);
+  text-decoration: underline;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.landing-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+button {
+  font-family: var(--font-body);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.card {
+  padding: 2em;
+}
