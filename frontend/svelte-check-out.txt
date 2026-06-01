@@ -1,0 +1,2048 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm.
+2:57:28 AM [vite-plugin-svelte] found more than one svelte config file, using /Users/yashassuresh/CMIS-prod/frontend/svelte.config.js. you should only have one!
+[
+  '/Users/yashassuresh/CMIS-prod/frontend/svelte.config.js',
+  '/Users/yashassuresh/CMIS-prod/frontend/svelte.config.ts'
+]
+Loading svelte-check in workspace: /Users/yashassuresh/CMIS-prod/frontend
+Getting Svelte diagnostics...
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/auth.ts:74:5
+Error: This comparison appears to be unintentional because the types '"CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE" | "CONTINUE_SIGN_IN_WITH_MFA_SELECTION" | "CONFIRM_SIGN_IN_WITH_SMS_CODE" | "CONFIRM_SIGN_IN_WITH_TOTP_CODE" | "CONTINUE_SIGN_IN_WITH_TOTP_SETUP" | ... 7 more ... | "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"' and '"CONFIRM_SIGN_IN_WITH_OTP"' have no overlap. 
+    step === 'CONFIRM_SIGN_IN_WITH_EMAIL_CODE' ||
+    step === 'CONFIRM_SIGN_IN_WITH_OTP' ||
+    step === 'CONFIRM_SIGN_IN'
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/auth.ts:75:5
+Error: This comparison appears to be unintentional because the types '"CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE" | "CONTINUE_SIGN_IN_WITH_MFA_SELECTION" | "CONFIRM_SIGN_IN_WITH_SMS_CODE" | "CONFIRM_SIGN_IN_WITH_TOTP_CODE" | "CONTINUE_SIGN_IN_WITH_TOTP_SETUP" | ... 7 more ... | "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"' and '"CONFIRM_SIGN_IN"' have no overlap. 
+    step === 'CONFIRM_SIGN_IN_WITH_OTP' ||
+    step === 'CONFIRM_SIGN_IN'
+  ) {
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/auth.ts:306:27
+Error: 'payloadBase64Url' is possibly 'undefined'. 
+    const payloadBase64Url = parts[1];
+    const payloadBase64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/auth.ts:343:27
+Error: 'payloadBase64Url' is possibly 'undefined'. 
+    const payloadBase64Url = parts[1];
+    const payloadBase64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = payloadBase64 + '='.repeat((4 - (payloadBase64.length % 4)) % 4);
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/auth.ts:404:12
+Error: Object is possibly 'undefined'. 
+    // Last-resort UX fallback for first-time forms.
+    name = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+  }
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/api.ts:219:9
+Error: Type '{ suggestions?: MentorshipMentorSuggestion[] | undefined; totalSuggestions?: number | undefined; detail?: string | undefined; }' is not assignable to type '{ suggestions: MentorshipMentorSuggestion[]; totalSuggestions: number; }'.
+  Types of property 'suggestions' are incompatible.
+    Type 'MentorshipMentorSuggestion[] | undefined' is not assignable to type 'MentorshipMentorSuggestion[]'.
+      Type 'undefined' is not assignable to type 'MentorshipMentorSuggestion[]'. 
+        status: res.status,
+        data: data as {
+          suggestions?: MentorshipMentorSuggestion[];
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:495:3
+Warn: Elements with the 'dialog' interactive role must have a tabindex value
+https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
+{#if open}
+  <div class="backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-panel-title" onclick={handleBackdropClick}>
+    <div class="panel" onclick={(e) => e.stopPropagation()}>
+      <div class="panel-header">
+        <h2 id="profile-panel-title">My Profile</h2>
+        <button type="button" class="btn-close" onclick={closePanel} aria-label="Close">×</button>
+      </div>
+      <p class="panel-subtitle">
+        {panelRole === 'admin'
+          ? 'View and edit your admin profile.'
+          : panelRole === 'student'
+            ? 'View and edit your student profile. Recruiters use this to discover you.'
+            : 'View and edit your profile.'}
+      </p>
+
+      <form class="profile-form" onsubmit={handleSubmit}>
+        <div class="field">
+          <label for="profile-name">Name <span class="required-mark">*</span></label>
+          <input id="profile-name" type="text" bind:value={name} required placeholder="Your full name" />
+        </div>
+        <div class="field">
+          <label for="profile-email">Email <span class="required-mark">*</span></label>
+          <input
+            id="profile-email"
+            type="text"
+            inputmode="email"
+            autocomplete="email"
+            bind:value={email}
+            required
+            placeholder="your.name@tamu.edu, personal@gmail.com"
+          />
+          <p class="field-hint">Use commas to separate multiple addresses (e.g. TAMU and personal).</p>
+        </div>
+
+        {#if panelRole !== 'admin' && normalizeEmailCsv(email).trim()}
+          <div class="field">
+            <label for="profile-formerStudentChecked">Former student?</label>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input
+                id="profile-formerStudentChecked"
+                type="checkbox"
+                bind:checked={isFormerStudentChecked}
+                style="width:auto;"
+              />
+              <span class="field-hint" style="font-size:0.9rem;">Are you a former student?</span>
+            </div>
+          </div>
+        {/if}
+        {#if panelRole === 'student'}
+          <div class="field">
+            <label for="profile-uin">UIN <span class="required-mark">*</span></label>
+            <input id="profile-uin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" value={uin} oninput={handleUinInput} required placeholder="9 digits, e.g. 123456789" />
+            {#if uinError}
+              <p class="error-message">{uinError}</p>
+            {/if}
+          </div>
+        {:else if panelRole === 'friend' || panelRole === 'investor'}
+          <div class="field">
+            <label for="profile-university">University</label>
+            <input id="profile-university" type="text" bind:value={university} placeholder="Your university" />
+          </div>
+        {:else if panelRole === 'admin'}
+          <div class="field">
+            <label for="profile-staffId">Staff ID</label>
+            <input id="profile-staffId" type="text" bind:value={staffId} placeholder="Staff ID" />
+          </div>
+          <div class="field">
+            <label for="profile-role">Role</label>
+            <input id="profile-role" type="text" bind:value={selectedProfileRole} placeholder="Role" />
+          </div>
+        {/if}
+
+        {#if panelRole !== 'admin'}
+          <div class="field">
+            <label for="profile-degree">
+              Degree
+            </label>
+            <select id="profile-degree" bind:value={degree}>
+              {#each DEGREE_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-major">
+              Major
+            </label>
+            <select id="profile-major" bind:value={major}>
+              {#each MAJOR_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-gradDate">
+              Graduation Year
+            </label>
+            <input id="profile-gradDate" type="date" bind:value={gradDate} />
+          </div>
+          <div class="field">
+            <label for="profile-linkedinUrl">
+              LinkedIn URL
+            </label>
+            <input id="profile-linkedinUrl" type="url" bind:value={linkedinUrl} placeholder="https://www.linkedin.com/in/your-handle" />
+          </div>
+          <fieldset class="mentorship-fieldset">
+            <legend>Mentorship program <span class="required-mark">*</span></legend>
+            <p class="field-hint">
+              You can change this anytime. If you opt in, choose mentee or mentor below.
+            </p>
+            <div class="mentorship-radios">
+              <label class="mentorship-radio-label">
+                <input type="radio" name="panel-mentorship-interest" value="no" bind:group={mentorshipInterest} />
+                Not interested
+              </label>
+              <label class="mentorship-radio-label">
+                <input
+                  type="radio"
+                  name="panel-mentorship-interest"
+                  value="yes"
+                  bind:group={mentorshipInterest}
+                />
+                Interested in participating
+              </label>
+            </div>
+            {#if mentorshipInterest === 'yes'}
+              <div class="mentorship-followup">
+                <p class="field-hint" style="margin-top: 0.75rem;">I would like to participate as:</p>
+                <div class="mentorship-radios">
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentee" bind:group={mentorshipKind} />
+                    Mentee
+                  </label>
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentor" bind:group={mentorshipKind} />
+                    Mentor
+                  </label>
+                </div>
+                {#if mentorshipKind === 'mentee'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentorship-goals"
+                      >Career goals <span class="hint">(recommended, especially without a resume)</span></label
+                    >
+                    <textarea
+                      id="panel-mentorship-goals"
+                      rows="3"
+                      bind:value={mentorshipGoalsText}
+                      placeholder="e.g. Internship in cloud security; strengthen Python and CI/CD; learn how teams ship to production."
+                      maxlength="2000"
+                    ></textarea>
+                    <p class="field-hint">
+                      Matching blends this text with your skills, major, and education. Specific goals beat a one-line “open to anything.”
+                    </p>
+                  </div>
+                {/if}
+                {#if mentorshipKind === 'mentor'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentor-capacity">How many students are you willing to mentor? (1–10)</label>
+                    <input
+                      id="panel-mentor-capacity"
+                      type="number"
+                      min="1"
+                      max="10"
+                      bind:value={mentorCapacityNum}
+                    />
+                  </div>
+                  <button type="button" class="btn-secondary" style="margin-top:0.6rem;" onclick={() => (showMentorModal = true)}>
+                    Configure mentor details
+                  </button>
+                {/if}
+              </div>
+            {/if}
+          </fieldset>
+
+          {#if panelRole !== 'admin'}
+            <div class="field">
+              <label for="panel-profileGpa">GPA <span class="hint">(optional)</span></label>
+              <input
+                id="panel-profileGpa"
+                type="text"
+                inputmode="decimal"
+                bind:value={profileGpaStr}
+                placeholder="e.g. 3.75"
+                autocomplete="off"
+              />
+              <p class="field-hint">Updated from your resume when extracted; editable anytime.</p>
+            </div>
+            <div class="field education-section">
+              <span class="education-section-label">Education <span class="hint">(optional)</span></span>
+              <p class="field-hint">One block per school or program. From your resume when extracted.</p>
+              {#each educationEntries as entry, eduIndex}
+                <div class="education-card">
+                  <div class="education-card-header">
+                    <span class="education-card-title">Education {eduIndex + 1}</span>
+                    <button
+                      type="button"
+                      class="btn-remove-edu"
+                      onclick={() => removeEducationRow(eduIndex)}
+                      aria-label="Remove this education entry"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div class="education-grid">
+                    <div class="education-field">
+                      <label for={`panel-edu-degree-${eduIndex}`}>Degree / Diploma</label>
+                      <input
+                        id={`panel-edu-degree-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.degree}
+                        placeholder="e.g. Master of Science"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-inst-${eduIndex}`}>Institute</label>
+                      <input
+                        id={`panel-edu-inst-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.institution}
+                        placeholder="e.g. Texas A&M University"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-dates-${eduIndex}`}>Dates</label>
+                      <input
+                        id={`panel-edu-dates-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.dates}
+                        placeholder="e.g. Aug 2023 – May 2025"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-details-${eduIndex}`}>Details</label>
+                      <textarea
+                        id={`panel-edu-details-${eduIndex}`}
+                        class="education-details-input"
+                        bind:value={entry.details}
+                        rows="3"
+                        spellcheck="true"
+                        placeholder="Honors, coursework, GPA in major, etc."
+                      ></textarea>
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-field-${eduIndex}`}>Field</label>
+                      <input
+                        id={`panel-edu-field-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.field}
+                        placeholder="e.g. Management Information Systems"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-gpa-${eduIndex}`}>GPA</label>
+                      <input
+                        id={`panel-edu-gpa-${eduIndex}`}
+                        type="text"
+                        inputmode="decimal"
+                        bind:value={entry.gpa}
+                        placeholder="e.g. 3.85"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+              <button type="button" class="btn-add-edu" onclick={addEducationRow}>+ Add education</button>
+            </div>
+            <div class="field">
+              <label for="panel-skillFilter">Skills <span class="hint">(optional)</span></label>
+              <input
+                id="panel-skillFilter"
+                type="search"
+                bind:value={skillFilter}
+                placeholder="Filter skills…"
+                autocomplete="off"
+              />
+              <div class="skills-chips" role="group" aria-label="Selected skills">
+                {#each selectedSkillKeys as k}
+                  {@const label = masterSkillsList.find((s) => s.normalizedKey === k)?.canonicalName ?? k}
+                  <button type="button" class="skill-chip selected" onclick={() => toggleSkillKey(k)}>
+                    {label} ×
+                  </button>
+                {/each}
+              </div>
+              <div class="skills-picker" role="listbox" aria-label="Available skills">
+                {#each filteredMasterSkills() as s}
+                  <button
+                    type="button"
+                    class="skill-option"
+                    class:selected={selectedSkillKeys.includes(s.normalizedKey)}
+                    onclick={() => toggleSkillKey(s.normalizedKey)}
+                  >
+                    {s.canonicalName}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+          <ProfileMatchChecklist
+            active={mentorshipInterest === 'yes' && (mentorshipKind === 'mentee' || mentorshipKind === 'mentor')}
+            mentorshipKind={mentorshipKind}
+            skillKeysCount={selectedSkillKeys.length}
+            goalsTrimmed={mentorshipGoalsText}
+            educationEntries={educationEntries}
+            profileGpaStr={profileGpaStr}
+            {major}
+            {gradDate}
+            {linkedinUrl}
+            mentorSkillsCsv={mentorSkillsInput}
+            mentorIndustriesCount={mentorIndustriesSelected.length}
+            {mentorCompany}
+            {mentorJobTitle}
+            mentorYearsStr={mentorYearsExperienceInput}
+          />
+          <ResumeSection open={open} bind:this={resumeSectionRef} />
+        {/if}
+        {#if saveError}
+          <p class="error-message">{saveError}</p>
+        {/if}
+        <div class="actions">
+          <button type="button" class="btn-secondary" onclick={closePanel}>Cancel</button>
+          <button type="submit" class="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+        </div>
+        {#if saved}
+          <p class="success-message">Profile updated.</p>
+        {/if}
+      </form>
+      <div class="panel-footer">
+        <button type="button" class="btn-signout" onclick={handleSignOut}>Sign Out</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:495:3
+Warn: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+{#if open}
+  <div class="backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-panel-title" onclick={handleBackdropClick}>
+    <div class="panel" onclick={(e) => e.stopPropagation()}>
+      <div class="panel-header">
+        <h2 id="profile-panel-title">My Profile</h2>
+        <button type="button" class="btn-close" onclick={closePanel} aria-label="Close">×</button>
+      </div>
+      <p class="panel-subtitle">
+        {panelRole === 'admin'
+          ? 'View and edit your admin profile.'
+          : panelRole === 'student'
+            ? 'View and edit your student profile. Recruiters use this to discover you.'
+            : 'View and edit your profile.'}
+      </p>
+
+      <form class="profile-form" onsubmit={handleSubmit}>
+        <div class="field">
+          <label for="profile-name">Name <span class="required-mark">*</span></label>
+          <input id="profile-name" type="text" bind:value={name} required placeholder="Your full name" />
+        </div>
+        <div class="field">
+          <label for="profile-email">Email <span class="required-mark">*</span></label>
+          <input
+            id="profile-email"
+            type="text"
+            inputmode="email"
+            autocomplete="email"
+            bind:value={email}
+            required
+            placeholder="your.name@tamu.edu, personal@gmail.com"
+          />
+          <p class="field-hint">Use commas to separate multiple addresses (e.g. TAMU and personal).</p>
+        </div>
+
+        {#if panelRole !== 'admin' && normalizeEmailCsv(email).trim()}
+          <div class="field">
+            <label for="profile-formerStudentChecked">Former student?</label>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input
+                id="profile-formerStudentChecked"
+                type="checkbox"
+                bind:checked={isFormerStudentChecked}
+                style="width:auto;"
+              />
+              <span class="field-hint" style="font-size:0.9rem;">Are you a former student?</span>
+            </div>
+          </div>
+        {/if}
+        {#if panelRole === 'student'}
+          <div class="field">
+            <label for="profile-uin">UIN <span class="required-mark">*</span></label>
+            <input id="profile-uin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" value={uin} oninput={handleUinInput} required placeholder="9 digits, e.g. 123456789" />
+            {#if uinError}
+              <p class="error-message">{uinError}</p>
+            {/if}
+          </div>
+        {:else if panelRole === 'friend' || panelRole === 'investor'}
+          <div class="field">
+            <label for="profile-university">University</label>
+            <input id="profile-university" type="text" bind:value={university} placeholder="Your university" />
+          </div>
+        {:else if panelRole === 'admin'}
+          <div class="field">
+            <label for="profile-staffId">Staff ID</label>
+            <input id="profile-staffId" type="text" bind:value={staffId} placeholder="Staff ID" />
+          </div>
+          <div class="field">
+            <label for="profile-role">Role</label>
+            <input id="profile-role" type="text" bind:value={selectedProfileRole} placeholder="Role" />
+          </div>
+        {/if}
+
+        {#if panelRole !== 'admin'}
+          <div class="field">
+            <label for="profile-degree">
+              Degree
+            </label>
+            <select id="profile-degree" bind:value={degree}>
+              {#each DEGREE_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-major">
+              Major
+            </label>
+            <select id="profile-major" bind:value={major}>
+              {#each MAJOR_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-gradDate">
+              Graduation Year
+            </label>
+            <input id="profile-gradDate" type="date" bind:value={gradDate} />
+          </div>
+          <div class="field">
+            <label for="profile-linkedinUrl">
+              LinkedIn URL
+            </label>
+            <input id="profile-linkedinUrl" type="url" bind:value={linkedinUrl} placeholder="https://www.linkedin.com/in/your-handle" />
+          </div>
+          <fieldset class="mentorship-fieldset">
+            <legend>Mentorship program <span class="required-mark">*</span></legend>
+            <p class="field-hint">
+              You can change this anytime. If you opt in, choose mentee or mentor below.
+            </p>
+            <div class="mentorship-radios">
+              <label class="mentorship-radio-label">
+                <input type="radio" name="panel-mentorship-interest" value="no" bind:group={mentorshipInterest} />
+                Not interested
+              </label>
+              <label class="mentorship-radio-label">
+                <input
+                  type="radio"
+                  name="panel-mentorship-interest"
+                  value="yes"
+                  bind:group={mentorshipInterest}
+                />
+                Interested in participating
+              </label>
+            </div>
+            {#if mentorshipInterest === 'yes'}
+              <div class="mentorship-followup">
+                <p class="field-hint" style="margin-top: 0.75rem;">I would like to participate as:</p>
+                <div class="mentorship-radios">
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentee" bind:group={mentorshipKind} />
+                    Mentee
+                  </label>
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentor" bind:group={mentorshipKind} />
+                    Mentor
+                  </label>
+                </div>
+                {#if mentorshipKind === 'mentee'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentorship-goals"
+                      >Career goals <span class="hint">(recommended, especially without a resume)</span></label
+                    >
+                    <textarea
+                      id="panel-mentorship-goals"
+                      rows="3"
+                      bind:value={mentorshipGoalsText}
+                      placeholder="e.g. Internship in cloud security; strengthen Python and CI/CD; learn how teams ship to production."
+                      maxlength="2000"
+                    ></textarea>
+                    <p class="field-hint">
+                      Matching blends this text with your skills, major, and education. Specific goals beat a one-line “open to anything.”
+                    </p>
+                  </div>
+                {/if}
+                {#if mentorshipKind === 'mentor'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentor-capacity">How many students are you willing to mentor? (1–10)</label>
+                    <input
+                      id="panel-mentor-capacity"
+                      type="number"
+                      min="1"
+                      max="10"
+                      bind:value={mentorCapacityNum}
+                    />
+                  </div>
+                  <button type="button" class="btn-secondary" style="margin-top:0.6rem;" onclick={() => (showMentorModal = true)}>
+                    Configure mentor details
+                  </button>
+                {/if}
+              </div>
+            {/if}
+          </fieldset>
+
+          {#if panelRole !== 'admin'}
+            <div class="field">
+              <label for="panel-profileGpa">GPA <span class="hint">(optional)</span></label>
+              <input
+                id="panel-profileGpa"
+                type="text"
+                inputmode="decimal"
+                bind:value={profileGpaStr}
+                placeholder="e.g. 3.75"
+                autocomplete="off"
+              />
+              <p class="field-hint">Updated from your resume when extracted; editable anytime.</p>
+            </div>
+            <div class="field education-section">
+              <span class="education-section-label">Education <span class="hint">(optional)</span></span>
+              <p class="field-hint">One block per school or program. From your resume when extracted.</p>
+              {#each educationEntries as entry, eduIndex}
+                <div class="education-card">
+                  <div class="education-card-header">
+                    <span class="education-card-title">Education {eduIndex + 1}</span>
+                    <button
+                      type="button"
+                      class="btn-remove-edu"
+                      onclick={() => removeEducationRow(eduIndex)}
+                      aria-label="Remove this education entry"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div class="education-grid">
+                    <div class="education-field">
+                      <label for={`panel-edu-degree-${eduIndex}`}>Degree / Diploma</label>
+                      <input
+                        id={`panel-edu-degree-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.degree}
+                        placeholder="e.g. Master of Science"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-inst-${eduIndex}`}>Institute</label>
+                      <input
+                        id={`panel-edu-inst-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.institution}
+                        placeholder="e.g. Texas A&M University"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-dates-${eduIndex}`}>Dates</label>
+                      <input
+                        id={`panel-edu-dates-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.dates}
+                        placeholder="e.g. Aug 2023 – May 2025"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-details-${eduIndex}`}>Details</label>
+                      <textarea
+                        id={`panel-edu-details-${eduIndex}`}
+                        class="education-details-input"
+                        bind:value={entry.details}
+                        rows="3"
+                        spellcheck="true"
+                        placeholder="Honors, coursework, GPA in major, etc."
+                      ></textarea>
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-field-${eduIndex}`}>Field</label>
+                      <input
+                        id={`panel-edu-field-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.field}
+                        placeholder="e.g. Management Information Systems"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-gpa-${eduIndex}`}>GPA</label>
+                      <input
+                        id={`panel-edu-gpa-${eduIndex}`}
+                        type="text"
+                        inputmode="decimal"
+                        bind:value={entry.gpa}
+                        placeholder="e.g. 3.85"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+              <button type="button" class="btn-add-edu" onclick={addEducationRow}>+ Add education</button>
+            </div>
+            <div class="field">
+              <label for="panel-skillFilter">Skills <span class="hint">(optional)</span></label>
+              <input
+                id="panel-skillFilter"
+                type="search"
+                bind:value={skillFilter}
+                placeholder="Filter skills…"
+                autocomplete="off"
+              />
+              <div class="skills-chips" role="group" aria-label="Selected skills">
+                {#each selectedSkillKeys as k}
+                  {@const label = masterSkillsList.find((s) => s.normalizedKey === k)?.canonicalName ?? k}
+                  <button type="button" class="skill-chip selected" onclick={() => toggleSkillKey(k)}>
+                    {label} ×
+                  </button>
+                {/each}
+              </div>
+              <div class="skills-picker" role="listbox" aria-label="Available skills">
+                {#each filteredMasterSkills() as s}
+                  <button
+                    type="button"
+                    class="skill-option"
+                    class:selected={selectedSkillKeys.includes(s.normalizedKey)}
+                    onclick={() => toggleSkillKey(s.normalizedKey)}
+                  >
+                    {s.canonicalName}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+          <ProfileMatchChecklist
+            active={mentorshipInterest === 'yes' && (mentorshipKind === 'mentee' || mentorshipKind === 'mentor')}
+            mentorshipKind={mentorshipKind}
+            skillKeysCount={selectedSkillKeys.length}
+            goalsTrimmed={mentorshipGoalsText}
+            educationEntries={educationEntries}
+            profileGpaStr={profileGpaStr}
+            {major}
+            {gradDate}
+            {linkedinUrl}
+            mentorSkillsCsv={mentorSkillsInput}
+            mentorIndustriesCount={mentorIndustriesSelected.length}
+            {mentorCompany}
+            {mentorJobTitle}
+            mentorYearsStr={mentorYearsExperienceInput}
+          />
+          <ResumeSection open={open} bind:this={resumeSectionRef} />
+        {/if}
+        {#if saveError}
+          <p class="error-message">{saveError}</p>
+        {/if}
+        <div class="actions">
+          <button type="button" class="btn-secondary" onclick={closePanel}>Cancel</button>
+          <button type="submit" class="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+        </div>
+        {#if saved}
+          <p class="success-message">Profile updated.</p>
+        {/if}
+      </form>
+      <div class="panel-footer">
+        <button type="button" class="btn-signout" onclick={handleSignOut}>Sign Out</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:496:5
+Warn: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+  <div class="backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-panel-title" onclick={handleBackdropClick}>
+    <div class="panel" onclick={(e) => e.stopPropagation()}>
+      <div class="panel-header">
+        <h2 id="profile-panel-title">My Profile</h2>
+        <button type="button" class="btn-close" onclick={closePanel} aria-label="Close">×</button>
+      </div>
+      <p class="panel-subtitle">
+        {panelRole === 'admin'
+          ? 'View and edit your admin profile.'
+          : panelRole === 'student'
+            ? 'View and edit your student profile. Recruiters use this to discover you.'
+            : 'View and edit your profile.'}
+      </p>
+
+      <form class="profile-form" onsubmit={handleSubmit}>
+        <div class="field">
+          <label for="profile-name">Name <span class="required-mark">*</span></label>
+          <input id="profile-name" type="text" bind:value={name} required placeholder="Your full name" />
+        </div>
+        <div class="field">
+          <label for="profile-email">Email <span class="required-mark">*</span></label>
+          <input
+            id="profile-email"
+            type="text"
+            inputmode="email"
+            autocomplete="email"
+            bind:value={email}
+            required
+            placeholder="your.name@tamu.edu, personal@gmail.com"
+          />
+          <p class="field-hint">Use commas to separate multiple addresses (e.g. TAMU and personal).</p>
+        </div>
+
+        {#if panelRole !== 'admin' && normalizeEmailCsv(email).trim()}
+          <div class="field">
+            <label for="profile-formerStudentChecked">Former student?</label>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input
+                id="profile-formerStudentChecked"
+                type="checkbox"
+                bind:checked={isFormerStudentChecked}
+                style="width:auto;"
+              />
+              <span class="field-hint" style="font-size:0.9rem;">Are you a former student?</span>
+            </div>
+          </div>
+        {/if}
+        {#if panelRole === 'student'}
+          <div class="field">
+            <label for="profile-uin">UIN <span class="required-mark">*</span></label>
+            <input id="profile-uin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" value={uin} oninput={handleUinInput} required placeholder="9 digits, e.g. 123456789" />
+            {#if uinError}
+              <p class="error-message">{uinError}</p>
+            {/if}
+          </div>
+        {:else if panelRole === 'friend' || panelRole === 'investor'}
+          <div class="field">
+            <label for="profile-university">University</label>
+            <input id="profile-university" type="text" bind:value={university} placeholder="Your university" />
+          </div>
+        {:else if panelRole === 'admin'}
+          <div class="field">
+            <label for="profile-staffId">Staff ID</label>
+            <input id="profile-staffId" type="text" bind:value={staffId} placeholder="Staff ID" />
+          </div>
+          <div class="field">
+            <label for="profile-role">Role</label>
+            <input id="profile-role" type="text" bind:value={selectedProfileRole} placeholder="Role" />
+          </div>
+        {/if}
+
+        {#if panelRole !== 'admin'}
+          <div class="field">
+            <label for="profile-degree">
+              Degree
+            </label>
+            <select id="profile-degree" bind:value={degree}>
+              {#each DEGREE_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-major">
+              Major
+            </label>
+            <select id="profile-major" bind:value={major}>
+              {#each MAJOR_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-gradDate">
+              Graduation Year
+            </label>
+            <input id="profile-gradDate" type="date" bind:value={gradDate} />
+          </div>
+          <div class="field">
+            <label for="profile-linkedinUrl">
+              LinkedIn URL
+            </label>
+            <input id="profile-linkedinUrl" type="url" bind:value={linkedinUrl} placeholder="https://www.linkedin.com/in/your-handle" />
+          </div>
+          <fieldset class="mentorship-fieldset">
+            <legend>Mentorship program <span class="required-mark">*</span></legend>
+            <p class="field-hint">
+              You can change this anytime. If you opt in, choose mentee or mentor below.
+            </p>
+            <div class="mentorship-radios">
+              <label class="mentorship-radio-label">
+                <input type="radio" name="panel-mentorship-interest" value="no" bind:group={mentorshipInterest} />
+                Not interested
+              </label>
+              <label class="mentorship-radio-label">
+                <input
+                  type="radio"
+                  name="panel-mentorship-interest"
+                  value="yes"
+                  bind:group={mentorshipInterest}
+                />
+                Interested in participating
+              </label>
+            </div>
+            {#if mentorshipInterest === 'yes'}
+              <div class="mentorship-followup">
+                <p class="field-hint" style="margin-top: 0.75rem;">I would like to participate as:</p>
+                <div class="mentorship-radios">
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentee" bind:group={mentorshipKind} />
+                    Mentee
+                  </label>
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentor" bind:group={mentorshipKind} />
+                    Mentor
+                  </label>
+                </div>
+                {#if mentorshipKind === 'mentee'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentorship-goals"
+                      >Career goals <span class="hint">(recommended, especially without a resume)</span></label
+                    >
+                    <textarea
+                      id="panel-mentorship-goals"
+                      rows="3"
+                      bind:value={mentorshipGoalsText}
+                      placeholder="e.g. Internship in cloud security; strengthen Python and CI/CD; learn how teams ship to production."
+                      maxlength="2000"
+                    ></textarea>
+                    <p class="field-hint">
+                      Matching blends this text with your skills, major, and education. Specific goals beat a one-line “open to anything.”
+                    </p>
+                  </div>
+                {/if}
+                {#if mentorshipKind === 'mentor'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentor-capacity">How many students are you willing to mentor? (1–10)</label>
+                    <input
+                      id="panel-mentor-capacity"
+                      type="number"
+                      min="1"
+                      max="10"
+                      bind:value={mentorCapacityNum}
+                    />
+                  </div>
+                  <button type="button" class="btn-secondary" style="margin-top:0.6rem;" onclick={() => (showMentorModal = true)}>
+                    Configure mentor details
+                  </button>
+                {/if}
+              </div>
+            {/if}
+          </fieldset>
+
+          {#if panelRole !== 'admin'}
+            <div class="field">
+              <label for="panel-profileGpa">GPA <span class="hint">(optional)</span></label>
+              <input
+                id="panel-profileGpa"
+                type="text"
+                inputmode="decimal"
+                bind:value={profileGpaStr}
+                placeholder="e.g. 3.75"
+                autocomplete="off"
+              />
+              <p class="field-hint">Updated from your resume when extracted; editable anytime.</p>
+            </div>
+            <div class="field education-section">
+              <span class="education-section-label">Education <span class="hint">(optional)</span></span>
+              <p class="field-hint">One block per school or program. From your resume when extracted.</p>
+              {#each educationEntries as entry, eduIndex}
+                <div class="education-card">
+                  <div class="education-card-header">
+                    <span class="education-card-title">Education {eduIndex + 1}</span>
+                    <button
+                      type="button"
+                      class="btn-remove-edu"
+                      onclick={() => removeEducationRow(eduIndex)}
+                      aria-label="Remove this education entry"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div class="education-grid">
+                    <div class="education-field">
+                      <label for={`panel-edu-degree-${eduIndex}`}>Degree / Diploma</label>
+                      <input
+                        id={`panel-edu-degree-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.degree}
+                        placeholder="e.g. Master of Science"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-inst-${eduIndex}`}>Institute</label>
+                      <input
+                        id={`panel-edu-inst-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.institution}
+                        placeholder="e.g. Texas A&M University"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-dates-${eduIndex}`}>Dates</label>
+                      <input
+                        id={`panel-edu-dates-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.dates}
+                        placeholder="e.g. Aug 2023 – May 2025"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-details-${eduIndex}`}>Details</label>
+                      <textarea
+                        id={`panel-edu-details-${eduIndex}`}
+                        class="education-details-input"
+                        bind:value={entry.details}
+                        rows="3"
+                        spellcheck="true"
+                        placeholder="Honors, coursework, GPA in major, etc."
+                      ></textarea>
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-field-${eduIndex}`}>Field</label>
+                      <input
+                        id={`panel-edu-field-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.field}
+                        placeholder="e.g. Management Information Systems"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-gpa-${eduIndex}`}>GPA</label>
+                      <input
+                        id={`panel-edu-gpa-${eduIndex}`}
+                        type="text"
+                        inputmode="decimal"
+                        bind:value={entry.gpa}
+                        placeholder="e.g. 3.85"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+              <button type="button" class="btn-add-edu" onclick={addEducationRow}>+ Add education</button>
+            </div>
+            <div class="field">
+              <label for="panel-skillFilter">Skills <span class="hint">(optional)</span></label>
+              <input
+                id="panel-skillFilter"
+                type="search"
+                bind:value={skillFilter}
+                placeholder="Filter skills…"
+                autocomplete="off"
+              />
+              <div class="skills-chips" role="group" aria-label="Selected skills">
+                {#each selectedSkillKeys as k}
+                  {@const label = masterSkillsList.find((s) => s.normalizedKey === k)?.canonicalName ?? k}
+                  <button type="button" class="skill-chip selected" onclick={() => toggleSkillKey(k)}>
+                    {label} ×
+                  </button>
+                {/each}
+              </div>
+              <div class="skills-picker" role="listbox" aria-label="Available skills">
+                {#each filteredMasterSkills() as s}
+                  <button
+                    type="button"
+                    class="skill-option"
+                    class:selected={selectedSkillKeys.includes(s.normalizedKey)}
+                    onclick={() => toggleSkillKey(s.normalizedKey)}
+                  >
+                    {s.canonicalName}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+          <ProfileMatchChecklist
+            active={mentorshipInterest === 'yes' && (mentorshipKind === 'mentee' || mentorshipKind === 'mentor')}
+            mentorshipKind={mentorshipKind}
+            skillKeysCount={selectedSkillKeys.length}
+            goalsTrimmed={mentorshipGoalsText}
+            educationEntries={educationEntries}
+            profileGpaStr={profileGpaStr}
+            {major}
+            {gradDate}
+            {linkedinUrl}
+            mentorSkillsCsv={mentorSkillsInput}
+            mentorIndustriesCount={mentorIndustriesSelected.length}
+            {mentorCompany}
+            {mentorJobTitle}
+            mentorYearsStr={mentorYearsExperienceInput}
+          />
+          <ResumeSection open={open} bind:this={resumeSectionRef} />
+        {/if}
+        {#if saveError}
+          <p class="error-message">{saveError}</p>
+        {/if}
+        <div class="actions">
+          <button type="button" class="btn-secondary" onclick={closePanel}>Cancel</button>
+          <button type="submit" class="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+        </div>
+        {#if saved}
+          <p class="success-message">Profile updated.</p>
+        {/if}
+      </form>
+      <div class="panel-footer">
+        <button type="button" class="btn-signout" onclick={handleSignOut}>Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:496:5
+Warn: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+  <div class="backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-panel-title" onclick={handleBackdropClick}>
+    <div class="panel" onclick={(e) => e.stopPropagation()}>
+      <div class="panel-header">
+        <h2 id="profile-panel-title">My Profile</h2>
+        <button type="button" class="btn-close" onclick={closePanel} aria-label="Close">×</button>
+      </div>
+      <p class="panel-subtitle">
+        {panelRole === 'admin'
+          ? 'View and edit your admin profile.'
+          : panelRole === 'student'
+            ? 'View and edit your student profile. Recruiters use this to discover you.'
+            : 'View and edit your profile.'}
+      </p>
+
+      <form class="profile-form" onsubmit={handleSubmit}>
+        <div class="field">
+          <label for="profile-name">Name <span class="required-mark">*</span></label>
+          <input id="profile-name" type="text" bind:value={name} required placeholder="Your full name" />
+        </div>
+        <div class="field">
+          <label for="profile-email">Email <span class="required-mark">*</span></label>
+          <input
+            id="profile-email"
+            type="text"
+            inputmode="email"
+            autocomplete="email"
+            bind:value={email}
+            required
+            placeholder="your.name@tamu.edu, personal@gmail.com"
+          />
+          <p class="field-hint">Use commas to separate multiple addresses (e.g. TAMU and personal).</p>
+        </div>
+
+        {#if panelRole !== 'admin' && normalizeEmailCsv(email).trim()}
+          <div class="field">
+            <label for="profile-formerStudentChecked">Former student?</label>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <input
+                id="profile-formerStudentChecked"
+                type="checkbox"
+                bind:checked={isFormerStudentChecked}
+                style="width:auto;"
+              />
+              <span class="field-hint" style="font-size:0.9rem;">Are you a former student?</span>
+            </div>
+          </div>
+        {/if}
+        {#if panelRole === 'student'}
+          <div class="field">
+            <label for="profile-uin">UIN <span class="required-mark">*</span></label>
+            <input id="profile-uin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" value={uin} oninput={handleUinInput} required placeholder="9 digits, e.g. 123456789" />
+            {#if uinError}
+              <p class="error-message">{uinError}</p>
+            {/if}
+          </div>
+        {:else if panelRole === 'friend' || panelRole === 'investor'}
+          <div class="field">
+            <label for="profile-university">University</label>
+            <input id="profile-university" type="text" bind:value={university} placeholder="Your university" />
+          </div>
+        {:else if panelRole === 'admin'}
+          <div class="field">
+            <label for="profile-staffId">Staff ID</label>
+            <input id="profile-staffId" type="text" bind:value={staffId} placeholder="Staff ID" />
+          </div>
+          <div class="field">
+            <label for="profile-role">Role</label>
+            <input id="profile-role" type="text" bind:value={selectedProfileRole} placeholder="Role" />
+          </div>
+        {/if}
+
+        {#if panelRole !== 'admin'}
+          <div class="field">
+            <label for="profile-degree">
+              Degree
+            </label>
+            <select id="profile-degree" bind:value={degree}>
+              {#each DEGREE_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-major">
+              Major
+            </label>
+            <select id="profile-major" bind:value={major}>
+              {#each MAJOR_OPTIONS as opt}
+                <option value={opt.value}>{opt.label}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="field">
+            <label for="profile-gradDate">
+              Graduation Year
+            </label>
+            <input id="profile-gradDate" type="date" bind:value={gradDate} />
+          </div>
+          <div class="field">
+            <label for="profile-linkedinUrl">
+              LinkedIn URL
+            </label>
+            <input id="profile-linkedinUrl" type="url" bind:value={linkedinUrl} placeholder="https://www.linkedin.com/in/your-handle" />
+          </div>
+          <fieldset class="mentorship-fieldset">
+            <legend>Mentorship program <span class="required-mark">*</span></legend>
+            <p class="field-hint">
+              You can change this anytime. If you opt in, choose mentee or mentor below.
+            </p>
+            <div class="mentorship-radios">
+              <label class="mentorship-radio-label">
+                <input type="radio" name="panel-mentorship-interest" value="no" bind:group={mentorshipInterest} />
+                Not interested
+              </label>
+              <label class="mentorship-radio-label">
+                <input
+                  type="radio"
+                  name="panel-mentorship-interest"
+                  value="yes"
+                  bind:group={mentorshipInterest}
+                />
+                Interested in participating
+              </label>
+            </div>
+            {#if mentorshipInterest === 'yes'}
+              <div class="mentorship-followup">
+                <p class="field-hint" style="margin-top: 0.75rem;">I would like to participate as:</p>
+                <div class="mentorship-radios">
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentee" bind:group={mentorshipKind} />
+                    Mentee
+                  </label>
+                  <label class="mentorship-radio-label">
+                    <input type="radio" name="panel-mentorship-kind" value="mentor" bind:group={mentorshipKind} />
+                    Mentor
+                  </label>
+                </div>
+                {#if mentorshipKind === 'mentee'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentorship-goals"
+                      >Career goals <span class="hint">(recommended, especially without a resume)</span></label
+                    >
+                    <textarea
+                      id="panel-mentorship-goals"
+                      rows="3"
+                      bind:value={mentorshipGoalsText}
+                      placeholder="e.g. Internship in cloud security; strengthen Python and CI/CD; learn how teams ship to production."
+                      maxlength="2000"
+                    ></textarea>
+                    <p class="field-hint">
+                      Matching blends this text with your skills, major, and education. Specific goals beat a one-line “open to anything.”
+                    </p>
+                  </div>
+                {/if}
+                {#if mentorshipKind === 'mentor'}
+                  <div class="field" style="margin-top: 0.75rem;">
+                    <label for="panel-mentor-capacity">How many students are you willing to mentor? (1–10)</label>
+                    <input
+                      id="panel-mentor-capacity"
+                      type="number"
+                      min="1"
+                      max="10"
+                      bind:value={mentorCapacityNum}
+                    />
+                  </div>
+                  <button type="button" class="btn-secondary" style="margin-top:0.6rem;" onclick={() => (showMentorModal = true)}>
+                    Configure mentor details
+                  </button>
+                {/if}
+              </div>
+            {/if}
+          </fieldset>
+
+          {#if panelRole !== 'admin'}
+            <div class="field">
+              <label for="panel-profileGpa">GPA <span class="hint">(optional)</span></label>
+              <input
+                id="panel-profileGpa"
+                type="text"
+                inputmode="decimal"
+                bind:value={profileGpaStr}
+                placeholder="e.g. 3.75"
+                autocomplete="off"
+              />
+              <p class="field-hint">Updated from your resume when extracted; editable anytime.</p>
+            </div>
+            <div class="field education-section">
+              <span class="education-section-label">Education <span class="hint">(optional)</span></span>
+              <p class="field-hint">One block per school or program. From your resume when extracted.</p>
+              {#each educationEntries as entry, eduIndex}
+                <div class="education-card">
+                  <div class="education-card-header">
+                    <span class="education-card-title">Education {eduIndex + 1}</span>
+                    <button
+                      type="button"
+                      class="btn-remove-edu"
+                      onclick={() => removeEducationRow(eduIndex)}
+                      aria-label="Remove this education entry"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div class="education-grid">
+                    <div class="education-field">
+                      <label for={`panel-edu-degree-${eduIndex}`}>Degree / Diploma</label>
+                      <input
+                        id={`panel-edu-degree-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.degree}
+                        placeholder="e.g. Master of Science"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-inst-${eduIndex}`}>Institute</label>
+                      <input
+                        id={`panel-edu-inst-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.institution}
+                        placeholder="e.g. Texas A&M University"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-dates-${eduIndex}`}>Dates</label>
+                      <input
+                        id={`panel-edu-dates-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.dates}
+                        placeholder="e.g. Aug 2023 – May 2025"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-details-${eduIndex}`}>Details</label>
+                      <textarea
+                        id={`panel-edu-details-${eduIndex}`}
+                        class="education-details-input"
+                        bind:value={entry.details}
+                        rows="3"
+                        spellcheck="true"
+                        placeholder="Honors, coursework, GPA in major, etc."
+                      ></textarea>
+                    </div>
+                    <div class="education-field education-field-full">
+                      <label for={`panel-edu-field-${eduIndex}`}>Field</label>
+                      <input
+                        id={`panel-edu-field-${eduIndex}`}
+                        type="text"
+                        bind:value={entry.field}
+                        placeholder="e.g. Management Information Systems"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="education-field">
+                      <label for={`panel-edu-gpa-${eduIndex}`}>GPA</label>
+                      <input
+                        id={`panel-edu-gpa-${eduIndex}`}
+                        type="text"
+                        inputmode="decimal"
+                        bind:value={entry.gpa}
+                        placeholder="e.g. 3.85"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+              <button type="button" class="btn-add-edu" onclick={addEducationRow}>+ Add education</button>
+            </div>
+            <div class="field">
+              <label for="panel-skillFilter">Skills <span class="hint">(optional)</span></label>
+              <input
+                id="panel-skillFilter"
+                type="search"
+                bind:value={skillFilter}
+                placeholder="Filter skills…"
+                autocomplete="off"
+              />
+              <div class="skills-chips" role="group" aria-label="Selected skills">
+                {#each selectedSkillKeys as k}
+                  {@const label = masterSkillsList.find((s) => s.normalizedKey === k)?.canonicalName ?? k}
+                  <button type="button" class="skill-chip selected" onclick={() => toggleSkillKey(k)}>
+                    {label} ×
+                  </button>
+                {/each}
+              </div>
+              <div class="skills-picker" role="listbox" aria-label="Available skills">
+                {#each filteredMasterSkills() as s}
+                  <button
+                    type="button"
+                    class="skill-option"
+                    class:selected={selectedSkillKeys.includes(s.normalizedKey)}
+                    onclick={() => toggleSkillKey(s.normalizedKey)}
+                  >
+                    {s.canonicalName}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+          <ProfileMatchChecklist
+            active={mentorshipInterest === 'yes' && (mentorshipKind === 'mentee' || mentorshipKind === 'mentor')}
+            mentorshipKind={mentorshipKind}
+            skillKeysCount={selectedSkillKeys.length}
+            goalsTrimmed={mentorshipGoalsText}
+            educationEntries={educationEntries}
+            profileGpaStr={profileGpaStr}
+            {major}
+            {gradDate}
+            {linkedinUrl}
+            mentorSkillsCsv={mentorSkillsInput}
+            mentorIndustriesCount={mentorIndustriesSelected.length}
+            {mentorCompany}
+            {mentorJobTitle}
+            mentorYearsStr={mentorYearsExperienceInput}
+          />
+          <ResumeSection open={open} bind:this={resumeSectionRef} />
+        {/if}
+        {#if saveError}
+          <p class="error-message">{saveError}</p>
+        {/if}
+        <div class="actions">
+          <button type="button" class="btn-secondary" onclick={closePanel}>Cancel</button>
+          <button type="submit" class="btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
+        </div>
+        {#if saved}
+          <p class="success-message">Profile updated.</p>
+        {/if}
+      </form>
+      <div class="panel-footer">
+        <button type="button" class="btn-signout" onclick={handleSignOut}>Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:848:9
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+      <div class="field">
+        <label>Industries <span class="required-mark">*</span></label>
+        <div class="mentorship-radios">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:1259:3
+Warn: Unused CSS selector ".file-info"
+https://svelte.dev/e/css_unused_selector (svelte)
+
+  .file-info {
+    margin-top: 0.25rem;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfilePanel.svelte:668:16
+Error: This comparison appears to be unintentional because the types '"student" | "friend" | "investor"' and '"admin"' have no overlap. (ts)
+
+          {#if panelRole !== 'admin'}
+            <div class="field">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:385:11
+Warn: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+        {#if showProfileMenu}
+          <div class="profile-menu-backdrop" onclick={() => (showProfileMenu = false)}></div>
+          <div class="profile-menu" role="menu" aria-label="Profile menu">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:385:11
+Warn: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+        {#if showProfileMenu}
+          <div class="profile-menu-backdrop" onclick={() => (showProfileMenu = false)}></div>
+          <div class="profile-menu" role="menu" aria-label="Profile menu">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:502:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {#if $authUser && $profile.mentorshipInterested === true}
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('mentorship')} onclick={() => currentView.set('mentorship')}>
+          <div class="feature-icon" aria-hidden="true">🤝</div>
+          <h3 class="feature-title">Mentorship</h3>
+          <p class="feature-desc">Connect with industry mentors and peers for guidance, feedback, and career advice.</p>
+        </article>
+      {/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:509:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {#if !($authUser && signedInProfileRole === 'admin')}
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('case-competitions')} onclick={() => currentView.set('case-competitions')}>
+          <div class="feature-icon" aria-hidden="true">🏆</div>
+          <h3 class="feature-title">Case Competitions</h3>
+          <p class="feature-desc">Compete in case competitions, form teams, and track deadlines and results.</p>
+        </article>
+      {/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:516:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {#if $authUser}
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('judge-dashboard')} onclick={() => currentView.set('judge-dashboard')}>
+          <div class="feature-icon" aria-hidden="true">&#9878;</div>
+          <h3 class="feature-title">Judge Dashboard</h3>
+          <p class="feature-desc">Review team submissions, grade case competition entries, and provide feedback.</p>
+        </article>
+      {/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:522:7
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {/if}
+      <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('events')} onclick={() => currentView.set('events')}>
+        <div class="feature-icon" aria-hidden="true">📅</div>
+        <h3 class="feature-title">Events</h3>
+        <p class="feature-desc">Discover and register for company info sessions, career fairs, and networking events.</p>
+      </article>
+      {#if $authUser && signedInProfileRole !== 'friend' && signedInProfileRole !== 'admin'}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:528:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {#if $authUser && signedInProfileRole !== 'friend' && signedInProfileRole !== 'admin'}
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('students-connect')} onclick={() => currentView.set('students-connect')}>
+          <div class="feature-icon" aria-hidden="true">👥</div>
+          <h3 class="feature-title">Students Connect</h3>
+          <p class="feature-desc">Browse other CMIS students, filter by major and degree, and connect via LinkedIn.</p>
+        </article>
+      {/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:535:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+      {#if signedInProfileRole === 'admin'}
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('manage-users')} onclick={() => currentView.set('manage-users')}>
+          <div class="feature-icon" aria-hidden="true">👤</div>
+          <h3 class="feature-title">Manage Users</h3>
+          <p class="feature-desc">View all users and their roles in the system.</p>
+        </article>
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('admins')} onclick={() => currentView.set('admins')}>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/LandingPage.svelte:540:9
+Warn: Non-interactive element `<article>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role (svelte)
+        </article>
+        <article class="feature-card" role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && currentView.set('admins')} onclick={() => currentView.set('admins')}>
+            <div class="feature-icon" aria-hidden="true">🔧</div>
+            <h3 class="feature-title">Admin Dashboard</h3>
+            <p class="feature-desc">Manage companies, tiers, and themes for the platform.</p>
+          </article>
+      {/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfileForm.svelte:912:9
+Warn: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+      <div class="field">
+        <label>Industries <span class="required-mark">*</span></label>
+        <div class="mentorship-radios">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfileForm.svelte:1316:3
+Warn: Unused CSS selector ".file-info"
+https://svelte.dev/e/css_unused_selector (svelte)
+
+  .file-info {
+    margin-top: 0.25rem;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/ProfileForm.svelte:737:12
+Error: This comparison appears to be unintentional because the types '"student" | "friend" | "investor"' and '"admin"' have no overlap. (ts)
+
+      {#if signupRole !== 'admin'}
+        <div class="field">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/CollaborationPage.svelte:18:8
+Warn: '#' is not a valid href attribute
+https://svelte.dev/e/a11y_invalid_attribute (svelte)
+  <div class="collab-inner">
+    <a href="#" class="back-link" onclick={goBack}>
+      <span class="back-arrow">←</span>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/StudentsConnect.svelte:64:8
+Warn: '#' is not a valid href attribute
+https://svelte.dev/e/a11y_invalid_attribute (svelte)
+  <div class="students-inner">
+    <a href="#" class="back-link" onclick={goBack}>
+      <span class="back-arrow" aria-hidden="true">←</span>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/NavBar.svelte:38:11
+Warn: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+        {#if showProfileMenu}
+          <div class="profile-menu-backdrop" onclick={() => (showProfileMenu = false)}></div>
+          <div class="profile-menu" role="menu" aria-label="Profile menu">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/NavBar.svelte:38:11
+Warn: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+        {#if showProfileMenu}
+          <div class="profile-menu-backdrop" onclick={() => (showProfileMenu = false)}></div>
+          <div class="profile-menu" role="menu" aria-label="Profile menu">
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/AdminPage.svelte:72:18
+Error: 'waitForCacheAndReload' is declared but its value is never read. (ts)
+  // ── Cache wait helper ─────────────────────────────────────────────────────
+  async function waitForCacheAndReload(step: string) {
+    cacheMsg = step;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/EventsDashboard.svelte:1009:3
+Warn: Unused CSS selector ".modal-card select"
+https://svelte.dev/e/css_unused_selector (svelte)
+  .modal-card textarea,
+  .modal-card select {
+    width: 100%;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/EventsDashboard.svelte:180:28
+Error: Property 'message' does not exist on type '{ status: string; }'. (ts)
+      if (newStatus === "WAITLISTED") {
+        actionMsg = result.message || "Event is full. You've been added to the waitlist.";
+      } else {
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/GraduationHandover.svelte:182:3
+Warn: Unused CSS selector ".divider"
+https://svelte.dev/e/css_unused_selector (svelte)
+  }
+  .divider {
+    height: 1px;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/GraduationHandover.svelte:14:7
+Error: 'touchedEmail' is declared but its value is never read. (ts)
+  let linking = $state(false);
+  let touchedEmail = $state(false);
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/SubmissionViewer.svelte:41:1
+Warn: Elements with the 'dialog' interactive role must have a tabindex value
+https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div
+  class="modal-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Submission viewer for {teamName}"
+  onclick={handleOverlayClick}
+>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{teamName} — Submission</h2>
+      <button class="close-btn" onclick={onClose} aria-label="Close">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      {#if loading}
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading submission...</p>
+        </div>
+      {:else if error}
+        <div class="error-state">
+          <p>{error}</p>
+        </div>
+      {:else}
+        <iframe
+          src={pdfUrl}
+          title="Team Submission PDF"
+          class="pdf-frame"
+        ></iframe>
+        <div class="download-bar">
+          <a href={pdfUrl} target="_blank" rel="noopener noreferrer" class="download-link">
+            Open in new tab
+          </a>
+        </div>
+      {/if}
+    </div>
+  </div>
+</div>
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/JudgeDashboard.svelte:439:3
+Warn: Elements with the 'dialog' interactive role must have a tabindex value
+https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
+{#if scoringTeam && selectedCompetitionId}
+  <div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    onclick={handleOverlayClick}
+  >
+    <div class="modal-card grading-modal">
+      <div class="modal-header">
+        <h2>Grade: {scoringTeam.teamName}</h2>
+        <button class="btn-close-modal" onclick={() => (scoringTeam = null)}
+          >&times;</button
+        >
+      </div>
+
+      <div class="grading-layout">
+        <!-- Left: AI Summary Section -->
+        <div class="grading-sidebar">
+          <div class="summary-panel improved">
+            <div class="summary-header">
+              <span class="summary-title">🤖 AI Insights</span>
+              <div class="summary-actions-top">
+                <button
+                  class="btn-view-submission-mini"
+                  onclick={() => {
+                    if (scoringTeam) viewingTeam = scoringTeam;
+                  }}
+                  title="View actual PDF submission"
+                >
+                  📄 View Submission
+                </button>
+                <button
+                  class="btn-summary-mini"
+                  onclick={handleGenerateSummary}
+                  disabled={summaryLoading || !scoringTeam.hasSubmission}
+                  title={!scoringTeam.hasSubmission
+                    ? "No submission available"
+                    : "Regenerate AI summary"}
+                >
+                  {#if summaryLoading}
+                    <span class="spinner-sm"></span>
+                  {:else if aiSummary}
+                    🔄 Refresh
+                  {:else}
+                    ✨ Generate
+                  {/if}
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-content">
+              {#if !scoringTeam.hasSubmission}
+                <div class="summary-empty">
+                  <p>No submission uploaded yet — summary unavailable.</p>
+                </div>
+              {:else if summaryError}
+                <p class="summary-error">{summaryError}</p>
+              {:else if aiSummary}
+                <div class="summary-markdown">
+                  {@html renderedSummary}
+                </div>
+              {:else}
+                <div class="summary-placeholder">
+                  <div class="placeholder-icon">✨</div>
+                  <p>
+                    Unlock an AI-powered overview of this team's submission to
+                    assist your grading.
+                  </p>
+                  <button
+                    class="btn-generate-big"
+                    onclick={handleGenerateSummary}
+                    disabled={summaryLoading}
+                  >
+                    Generate Summary
+                  </button>
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Rubric and Feedback Section -->
+        <div class="grading-main">
+          <div class="section-title">Judging Rubric</div>
+          <div class="criteria-list">
+            {#each criteria as criterion (criterion.key)}
+              <div class="criterion-card">
+                <div class="criterion-info">
+                  <span class="criterion-label">{criterion.label}</span>
+                  <span class="criterion-range"
+                    >({criterion.min ?? 1}–{criterion.max ?? 10})</span
+                  >
+                </div>
+                <div class="rating-control">
+                  <input
+                    id="rating-{criterion.key}"
+                    type="range"
+                    min={criterion.min ?? 1}
+                    max={criterion.max ?? 10}
+                    step="1"
+                    bind:value={scoreRatings[criterion.key]}
+                  />
+                  <div class="rating-display">
+                    {scoreRatings[criterion.key] ?? criterion.min ?? 1}
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+
+          <div class="section-title">Feedback for the Team</div>
+          <textarea
+            class="feedback-textarea"
+            bind:value={scoreFeedback}
+            rows="5"
+            placeholder="Share constructive feedback on their strengths and areas for growth..."
+          ></textarea>
+
+          {#if scoreError}
+            <p class="form-error">{scoreError}</p>
+          {/if}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick={() => (scoringTeam = null)}
+          >Cancel</button
+        >
+        <button
+          class="btn-primary"
+          onclick={handleSubmitScore}
+          disabled={scoreLoading}
+        >
+          {scoreLoading
+            ? "Saving..."
+            : scoringTeam.gradingStatus === "GRADED"
+              ? "Update Grade"
+              : "Submit Grade"}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/JudgeDashboard.svelte:439:3
+Warn: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+{#if scoringTeam && selectedCompetitionId}
+  <div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    onclick={handleOverlayClick}
+  >
+    <div class="modal-card grading-modal">
+      <div class="modal-header">
+        <h2>Grade: {scoringTeam.teamName}</h2>
+        <button class="btn-close-modal" onclick={() => (scoringTeam = null)}
+          >&times;</button
+        >
+      </div>
+
+      <div class="grading-layout">
+        <!-- Left: AI Summary Section -->
+        <div class="grading-sidebar">
+          <div class="summary-panel improved">
+            <div class="summary-header">
+              <span class="summary-title">🤖 AI Insights</span>
+              <div class="summary-actions-top">
+                <button
+                  class="btn-view-submission-mini"
+                  onclick={() => {
+                    if (scoringTeam) viewingTeam = scoringTeam;
+                  }}
+                  title="View actual PDF submission"
+                >
+                  📄 View Submission
+                </button>
+                <button
+                  class="btn-summary-mini"
+                  onclick={handleGenerateSummary}
+                  disabled={summaryLoading || !scoringTeam.hasSubmission}
+                  title={!scoringTeam.hasSubmission
+                    ? "No submission available"
+                    : "Regenerate AI summary"}
+                >
+                  {#if summaryLoading}
+                    <span class="spinner-sm"></span>
+                  {:else if aiSummary}
+                    🔄 Refresh
+                  {:else}
+                    ✨ Generate
+                  {/if}
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-content">
+              {#if !scoringTeam.hasSubmission}
+                <div class="summary-empty">
+                  <p>No submission uploaded yet — summary unavailable.</p>
+                </div>
+              {:else if summaryError}
+                <p class="summary-error">{summaryError}</p>
+              {:else if aiSummary}
+                <div class="summary-markdown">
+                  {@html renderedSummary}
+                </div>
+              {:else}
+                <div class="summary-placeholder">
+                  <div class="placeholder-icon">✨</div>
+                  <p>
+                    Unlock an AI-powered overview of this team's submission to
+                    assist your grading.
+                  </p>
+                  <button
+                    class="btn-generate-big"
+                    onclick={handleGenerateSummary}
+                    disabled={summaryLoading}
+                  >
+                    Generate Summary
+                  </button>
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Rubric and Feedback Section -->
+        <div class="grading-main">
+          <div class="section-title">Judging Rubric</div>
+          <div class="criteria-list">
+            {#each criteria as criterion (criterion.key)}
+              <div class="criterion-card">
+                <div class="criterion-info">
+                  <span class="criterion-label">{criterion.label}</span>
+                  <span class="criterion-range"
+                    >({criterion.min ?? 1}–{criterion.max ?? 10})</span
+                  >
+                </div>
+                <div class="rating-control">
+                  <input
+                    id="rating-{criterion.key}"
+                    type="range"
+                    min={criterion.min ?? 1}
+                    max={criterion.max ?? 10}
+                    step="1"
+                    bind:value={scoreRatings[criterion.key]}
+                  />
+                  <div class="rating-display">
+                    {scoreRatings[criterion.key] ?? criterion.min ?? 1}
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+
+          <div class="section-title">Feedback for the Team</div>
+          <textarea
+            class="feedback-textarea"
+            bind:value={scoreFeedback}
+            rows="5"
+            placeholder="Share constructive feedback on their strengths and areas for growth..."
+          ></textarea>
+
+          {#if scoreError}
+            <p class="form-error">{scoreError}</p>
+          {/if}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick={() => (scoringTeam = null)}
+          >Cancel</button
+        >
+        <button
+          class="btn-primary"
+          onclick={handleSubmitScore}
+          disabled={scoreLoading}
+        >
+          {scoreLoading
+            ? "Saving..."
+            : scoringTeam.gradingStatus === "GRADED"
+              ? "Update Grade"
+              : "Submit Grade"}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+/Users/yashassuresh/CMIS-prod/frontend/src/lib/JudgeDashboard.svelte:17:26
+Error: Cannot find module 'marked' or its corresponding type declarations. (ts)
+  import SubmissionViewer from "./SubmissionViewer.svelte";
+  import { marked } from "marked";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:28:7
+Error: 'resetPasswordEmail' is declared but its value is never read. (ts)
+  let claimToken = "";
+  let resetPasswordEmail = "";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:31:7
+Error: 'user' is declared but its value is never read. (ts)
+  let accessToken = localStorage.getItem("accessToken") || "";
+  let user = null;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:80:12
+Error: 'setView' is declared but its value is never read. (ts)
+
+  function setView(v) {
+    view = v;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:80:20
+Error: Parameter 'v' implicitly has an 'any' type. (ts)
+
+  function setView(v) {
+    view = v;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:94:30
+Error: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'. (ts)
+    const hash = (window.location.hash || "").replace(/^#/, "").split("?")[0];
+    if (VALID_VIEWS.includes(hash)) return hash;
+    return accessToken ? "profile" : "login";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:98:11
+Error: Argument of type '() => Promise<() => void>' is not assignable to parameter of type '() => (() => any) | Promise<never>'.
+  Type 'Promise<() => void>' is not assignable to type '(() => any) | Promise<never>'.
+    Type 'Promise<() => void>' is not assignable to type 'Promise<never>'.
+      Type '() => void' is not assignable to type 'never'. (ts)
+
+  onMount(async () => {
+    // Fetch theme from API and update theme store
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:120:19
+Error: Property 'me' does not exist on type 'typeof import("/Users/yashassuresh/CMIS-prod/frontend/src/lib/api")'. (ts)
+        try {
+          const { me } = await import("./lib/api.js");
+          user = await me(accessToken);
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:132:9
+Error: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'. (ts)
+      } else {
+        view = fromHash;
+      }
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:148:7
+Error: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'. (ts)
+    } else {
+      view = fromHash;
+    }
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:152:12
+Error: 'onLogin' is declared but its value is never read. (ts)
+
+  function onLogin(payload) {
+    accessToken = payload.accessToken;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:152:20
+Error: Parameter 'payload' implicitly has an 'any' type. (ts)
+
+  function onLogin(payload) {
+    accessToken = payload.accessToken;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:161:12
+Error: 'onRegister' is declared but its value is never read. (ts)
+
+  function onRegister() {
+    view = "login";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:165:12
+Error: 'onLogout' is declared but its value is never read. (ts)
+
+  function onLogout() {
+    accessToken = "";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:173:12
+Error: 'onHandoverDone' is declared but its value is never read. (ts)
+
+  function onHandoverDone(updatedUser) {
+    user = updatedUser;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:173:27
+Error: Parameter 'updatedUser' implicitly has an 'any' type. (ts)
+
+  function onHandoverDone(updatedUser) {
+    user = updatedUser;
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:178:12
+Error: 'onClaimSuccess' is declared but its value is never read. (ts)
+
+  function onClaimSuccess() {
+    claimToken = "";
+
+/Users/yashassuresh/CMIS-prod/frontend/src/App.svelte:186:12
+Error: 'onClaimCancel' is declared but its value is never read. (ts)
+
+  function onClaimCancel() {
+    claimToken = "";
+
+====================================
+svelte-check found 29 errors and 26 warnings in 14 files
