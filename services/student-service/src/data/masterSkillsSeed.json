@@ -1,0 +1,21 @@
+[
+  "Java", "Python", "R", "SQL", "C++", "JavaScript", "TypeScript", "HTML", "CSS", "C#", "MATLAB", "VBA",
+  "Tableau", "Power BI", "Microsoft Excel", "SQL Server", "MySQL", "PostgreSQL", "Oracle Database",
+  "Snowflake", "Azure Synapse", "Google Analytics", "R Studio", "SPSS", "SAS",
+  "Data Modeling", "ETL", "Data Warehousing", "Data Visualization", "Predictive Analytics",
+  "Statistical Analysis", "A/B Testing",
+  "Amazon Web Services", "Microsoft Azure", "Google Cloud Platform", "Salesforce", "SAP",
+  "ServiceNow", "Microsoft Dynamics", "REST APIs", "JSON", "XML",
+  "React", "Node.js", "Angular", "Django", "Flask", "Git", "GitHub", "Docker", "Kubernetes",
+  "CI/CD", "Power Automate", "Robotic Process Automation", "UiPath",
+  "Information Security", "IT Governance", "Risk Management", "Identity and Access Management",
+  "Business Process Management", "Enterprise Resource Planning", "Supply Chain Systems", "CRM Systems",
+  "Project Management", "Agile", "Scrum", "Kanban", "Waterfall", "Jira", "Confluence",
+  "Systems Development Life Cycle", "Requirements Gathering", "User Acceptance Testing",
+  "Stakeholder Management",
+  "Business Analysis", "Data-Driven Decision Making", "KPI Design", "Financial Modeling",
+  "Cost-Benefit Analysis", "Strategic Planning", "Change Management", "Vendor Management",
+  "IT Consulting", "Digital Transformation",
+  "Technical Writing", "Presentations", "Cross-Functional Collaboration", "Team Leadership",
+  "Client Relationship Management"
+]
