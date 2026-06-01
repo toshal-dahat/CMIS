@@ -1,0 +1,25 @@
+{
+  "name": "cmis-frontend",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@tsconfig/svelte": "^5.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "svelte": "^5.43.8",
+    "svelte-check": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "aws-amplify": "^6.16.2"
+  }
+}

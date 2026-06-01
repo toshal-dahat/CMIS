@@ -1,0 +1,14 @@
+# Example Terraform variables
+# Copy this file to terraform.tfvars and customize
+
+# AWS region where resources will be created
+aws_region = "us-east-1"
+
+# Environment name (dev, staging, prod)
+environment = "dev"
+
+# Project name (used for resource naming)
+project_name = "cmis"
+
+# Optional: Custom domain name for frontend
+# domain_name = "app.example.com"

@@ -1,0 +1,44 @@
+output "frontend_bucket_name" {
+  description = "S3 bucket name for frontend"
+  value       = aws_s3_bucket.frontend.id
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront domain name"
+  value       = aws_cloudfront_distribution.frontend.domain_name
+}
+
+output "frontend_url" {
+  description = "Frontend URL"
+  value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+}
+
+output "api_gateway_url" {
+  description = "API Gateway URL"
+  value       = aws_apigatewayv2_stage.default.invoke_url
+}
+
+output "student_service_url" {
+  description = "Student Service URL"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}/student"
+}
+
+output "admin_service_url" {
+  description = "Admin Service URL"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}/admin"
+}
+
+output "external_service_url" {
+  description = "External Service URL"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}/external"
+}
+
+output "event_service_url" {
+  description = "Event Service URL"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}/event"
+}
