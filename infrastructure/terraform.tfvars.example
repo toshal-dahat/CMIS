@@ -1,0 +1,35 @@
+# Example Terraform variables
+# Copy this file to terraform.tfvars and customize
+
+# AWS region where resources will be created
+aws_region = "us-east-1"
+
+# Environment name (dev, staging, prod)
+environment = "dev"
+
+# Project name (used for resource naming)
+project_name = "cmis"
+
+# Optional: Custom domain name for frontend
+# domain_name = "app.example.com"
+
+# Cognito managed by this Terraform stack
+# Set Google OAuth credentials (from Google Cloud Console) if Google SSO is enabled.
+enable_google_sso = true
+google_oauth_client_id = "xxxxxxxxxxxx-abc123.apps.googleusercontent.com"
+google_oauth_client_secret = "replace-with-secret"
+
+# Must be globally unique in AWS Cognito domain namespace.
+cognito_domain_prefix = "cmis-auth-dev"
+
+# Include localhost callback/logout URLs for local testing.
+enable_localhost_auth_callback = true
+#additional_cognito_callback_urls = []
+#additional_cognito_logout_urls   = []
+
+# Keep empty when Cognito is in the same AWS account.
+#cognito_admin_role_arn = ""
+#cognito_admin_external_id = ""
+
+# Optional: force one email into Cognito "admins" group on first grouped API call.
+#admin_override_email = "your-admin@tamu.edu"
