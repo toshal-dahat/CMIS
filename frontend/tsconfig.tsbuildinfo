@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/config/auth.config.ts","./src/lib/api.ts","./src/lib/auth.ts","./src/lib/profileoptions.ts","./src/lib/resumes.ts","./src/lib/types.ts","./src/lib/stores/authstore.ts","./src/lib/stores/profilestore.ts","./src/lib/stores/viewstore.ts"],"version":"5.9.3"}

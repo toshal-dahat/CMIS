@@ -1,0 +1,25 @@
+{
+  "name": "cmis-event-service",
+  "version": "1.0.0",
+  "description": "CMIS Event Service (with Terraform provisions)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests defined\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "serverless-http": "^3.2.0",
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "lambda",
+    "event",
+    "serverless",
+    "dynamodb"
+  ],
+  "author": "",
+  "license": "MIT"
+}
