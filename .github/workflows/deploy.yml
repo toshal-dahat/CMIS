@@ -1,0 +1,333 @@
+name: Deploy CMIS Application
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20.x'
+  TERRAFORM_VERSION: '1.7.0'
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      # ========================================
+      # CHECKOUT AND SETUP
+      # ========================================
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            services/*/package-lock.json
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 7200
+
+      # ========================================
+      # BUILD FRONTEND
+      # ========================================
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      # Frontend build will happen after Terraform deployment to inject API URLs
+
+      # ========================================
+      # BUILD BACKEND SERVICES
+      # ========================================
+      - name: Create build directory
+        run: mkdir -p .build
+
+      - name: Build Student Service
+        run: |
+          cd services/student-service
+          npm ci --production
+          cp -r . ../../.build/student-service-temp
+          cd ../../.build/student-service-temp
+          zip -r ../student-service.zip . -x "*.git*" "node_modules/@aws-sdk/*" "tests/*"
+          cd ../..
+          rm -rf .build/student-service-temp
+
+      - name: Build Admin Service
+        run: |
+          cd services/admin-service
+          npm ci --production
+          cp -r . ../../.build/admin-service-temp
+          cd ../../.build/admin-service-temp
+          zip -r ../admin-service.zip . -x "*.git*" "tests/*"
+          cd ../..
+          rm -rf .build/admin-service-temp
+
+      - name: Build External Service
+        run: |
+          cd services/external-service
+          npm ci --production
+          cp -r . ../../.build/external-service-temp
+          cd ../../.build/external-service-temp
+          zip -r ../external-service.zip . -x "*.git*" "tests/*"
+          cd ../..
+          rm -rf .build/external-service-temp
+
+      - name: Build Event Service
+        run: |
+          cd services/event-service
+          npm ci --production
+          cp -r . ../../.build/event-service-temp
+          cd ../../.build/event-service-temp
+          zip -r ../event-service.zip . -x "*.git*" "tests/*"
+          cd ../..
+          rm -rf .build/event-service-temp
+
+      - name: Build Competition Service
+        run: |
+          cd services/competition-service
+          npm ci --production
+          cp -r . ../../.build/competition-service-temp
+          cd ../../.build/competition-service-temp
+          zip -r ../competition-service.zip . -x "*.git*" "tests/*"
+          cd ../..
+          rm -rf .build/competition-service-temp
+
+      - name: Build PPTX Extractor Package
+        run: |
+          python "infrastructure/competition/terraform/scripts/build_pptx_extractor_package.py" \
+            "services/pptx-extractor" \
+            "infrastructure/competition/terraform/build/pptx-extractor-package" \
+            "services/competition-service/requirements-pptx.txt"
+
+      # ========================================
+      # TERRAFORM DEPLOYMENT
+      # ========================================
+      - name: Terraform Init
+        working-directory: ./infrastructure
+        run: terraform init -backend-config="bucket=cmis-terraform-state-dev"
+
+      - name: Terraform Format Check
+        working-directory: ./infrastructure
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ./infrastructure
+        run: |
+          terraform plan \
+            -lock-timeout=5m \
+            -var="environment=dev" \
+            -var="aws_region=${{ env.AWS_REGION }}" \
+            -var="mentorship_embeddings_provider=${{ vars.MENTORSHIP_EMBEDDINGS_PROVIDER || 'bedrock-titan' }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        id: terraform-apply
+        working-directory: ./infrastructure
+        run: |
+          rm -f errored.tfstate
+          rm -f terraform-apply.log
+          max_attempts=3
+          attempt=1
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo "Terraform apply attempt ${attempt}/${max_attempts}"
+            if [ "$attempt" -gt 1 ]; then
+              echo "Refreshing plan before retry ${attempt}..."
+              terraform plan \
+                -lock-timeout=5m \
+                -var="environment=dev" \
+                -var="aws_region=${{ env.AWS_REGION }}" \
+                -var="mentorship_embeddings_provider=${{ vars.MENTORSHIP_EMBEDDINGS_PROVIDER || 'bedrock-titan' }}" \
+                -out=tfplan
+            fi
+
+            if terraform apply -lock-timeout=10m -auto-approve tfplan 2>&1 | tee terraform-apply.log; then
+              echo "Terraform apply succeeded on attempt ${attempt}"
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              backoff_seconds=$((attempt * 30))
+              echo "Terraform apply failed on attempt ${attempt}; retrying in ${backoff_seconds}s..."
+              sleep "${backoff_seconds}"
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "Terraform apply failed after ${max_attempts} attempts."
+          echo "Last 120 lines from terraform apply output:"
+          tail -n 120 terraform-apply.log || true
+          exit 1
+        continue-on-error: true
+
+      - name: Recover Terraform state after apply failure
+        id: terraform-state-recovery
+        if: steps.terraform-apply.outcome == 'failure' && hashFiles('infrastructure/errored.tfstate') != ''
+        working-directory: ./infrastructure
+        run: |
+          terraform state push errored.tfstate
+
+      - name: Fail deployment when apply fails without errored.tfstate
+        if: steps.terraform-apply.outcome == 'failure' && hashFiles('infrastructure/errored.tfstate') == ''
+        working-directory: ./infrastructure
+        run: |
+          echo "Terraform apply failed and no errored.tfstate was produced. This is typically lock/contention or API conflict, not recoverable via state push."
+          if [ -f "terraform-apply.log" ]; then
+            echo "Tail of terraform apply output:"
+            tail -n 120 terraform-apply.log || true
+          fi
+          exit 1
+
+      - name: Upload errored Terraform state artifact
+        if: always() && hashFiles('infrastructure/errored.tfstate') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-errored-state-dev-${{ github.run_id }}
+          path: infrastructure/errored.tfstate
+          if-no-files-found: ignore
+
+      - name: Fail deployment if Terraform apply did not recover
+        if: steps.terraform-apply.outcome == 'failure' && steps.terraform-state-recovery.outcome != 'success'
+        run: |
+          echo "Terraform apply failed and remote state recovery did not succeed."
+          exit 1
+
+      - name: Get Terraform Outputs
+        id: tf-outputs
+        working-directory: ./infrastructure
+        run: |
+          echo "frontend_bucket=$(terraform output -raw frontend_bucket_name)" >> $GITHUB_OUTPUT
+          echo "cloudfront_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "cloudfront_url=$(terraform output -raw cloudfront_domain_name)" >> $GITHUB_OUTPUT
+          echo "frontend_url=$(terraform output -raw frontend_url)" >> $GITHUB_OUTPUT
+          echo "api_gateway_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "student_core_api_gateway_url=$(terraform output -raw student_core_api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "admin_core_api_gateway_url=$(terraform output -raw admin_core_api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_OUTPUT
+          echo "cognito_client_id=$(terraform output -raw cognito_client_id)" >> $GITHUB_OUTPUT
+          echo "cognito_oauth_domain=$(terraform output -raw cognito_oauth_domain)" >> $GITHUB_OUTPUT
+          echo "cognito_region=$(terraform output -raw cognito_region)" >> $GITHUB_OUTPUT
+          echo "event_service_url=$(terraform output -raw event_service_url)" >> $GITHUB_OUTPUT
+          echo "external_core_api_gateway_url=$(terraform output -raw external_core_api_gateway_url)" >> $GITHUB_OUTPUT
+          echo "competition_core_api_gateway_url=$(terraform output -raw competition_core_api_gateway_url)" >> $GITHUB_OUTPUT
+
+      # ========================================
+      # BUILD FRONTEND WITH API URLS
+      # ========================================
+      - name: Create frontend environment file
+        working-directory: ./frontend
+        run: |
+          echo "VITE_STUDENT_API_URL=${{ steps.tf-outputs.outputs.api_gateway_url }}/student" > .env
+          echo "VITE_ADMIN_API_URL=${{ steps.tf-outputs.outputs.api_gateway_url }}/admin" >> .env
+          echo "VITE_EXTERNAL_API_URL=${{ steps.tf-outputs.outputs.api_gateway_url }}/external" >> .env
+          echo "VITE_EVENT_API_URL=${{ steps.tf-outputs.outputs.event_service_url }}" >> .env
+          echo "VITE_COGNITO_USER_POOL_ID=${{ steps.tf-outputs.outputs.cognito_user_pool_id }}" >> .env
+          echo "VITE_COGNITO_CLIENT_ID=${{ steps.tf-outputs.outputs.cognito_client_id }}" >> .env
+          echo "VITE_COGNITO_REGION=${{ steps.tf-outputs.outputs.cognito_region }}" >> .env
+          echo "VITE_COGNITO_OAUTH_DOMAIN=${{ steps.tf-outputs.outputs.cognito_oauth_domain }}" >> .env
+          echo "VITE_COGNITO_REDIRECT_SIGN_IN=${{ steps.tf-outputs.outputs.frontend_url }}/" >> .env
+          echo "VITE_COGNITO_REDIRECT_SIGN_OUT=${{ steps.tf-outputs.outputs.frontend_url }}/" >> .env
+          echo "VITE_API_BASE_URL=${{ steps.tf-outputs.outputs.api_gateway_url }}" >> .env
+          echo "VITE_EXTERNAL_API_BASE_URL=${{ steps.tf-outputs.outputs.external_core_api_gateway_url }}" >> .env
+          echo "VITE_THEME_API_URL=${{ steps.tf-outputs.outputs.admin_core_api_gateway_url }}/theme" >> .env
+          echo "VITE_TIERS_API_URL=${{ steps.tf-outputs.outputs.admin_core_api_gateway_url }}/tiers" >> .env
+          echo "VITE_CONFIG_API_URL=${{ steps.tf-outputs.outputs.admin_core_api_gateway_url }}/config" >> .env
+          echo "VITE_COMPANIES_API_URL=${{ steps.tf-outputs.outputs.admin_core_api_gateway_url }}/companies" >> .env
+          echo "VITE_COMPETITION_API_URL=${{ steps.tf-outputs.outputs.competition_core_api_gateway_url }}" >> .env
+      - name: Build frontend with API URLs
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # ========================================
+      # DEPLOY FRONTEND TO S3
+      # ========================================
+      - name: Deploy frontend to S3
+        run: |
+          aws s3 sync frontend/dist/ s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html"
+          
+          aws s3 cp frontend/dist/index.html s3://${{ steps.tf-outputs.outputs.frontend_bucket }}/index.html \
+            --cache-control "public, max-age=0, must-revalidate"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.tf-outputs.outputs.cloudfront_id }} \
+            --paths "/*"
+
+      # ========================================
+      # DEPLOYMENT SUMMARY
+      # ========================================
+      - name: Output deployment URLs
+        run: |
+          echo "=================================================="
+          echo "🚀 DEPLOYMENT SUCCESSFUL!"
+          echo "=================================================="
+          echo ""
+          echo "📱 Frontend URL:"
+          echo "   https://${{ steps.tf-outputs.outputs.cloudfront_url }}"
+          echo ""
+          echo "🔌 API Gateway URL:"
+          echo "   ${{ steps.tf-outputs.outputs.api_gateway_url }}"
+          echo ""
+          echo "🔗 Service Endpoints:"
+          echo "   Student Service:  ${{ steps.tf-outputs.outputs.api_gateway_url }}/student"
+          echo "   Admin Service:    ${{ steps.tf-outputs.outputs.api_gateway_url }}/admin"
+          echo "   External Service: ${{ steps.tf-outputs.outputs.api_gateway_url }}/external"
+          echo "   Event Service:    ${{ steps.tf-outputs.outputs.event_service_url }}"
+          echo "   Competition Service: ${{ steps.tf-outputs.outputs.competition_core_api_gateway_url }}"
+          echo ""
+          echo "=================================================="
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://${{ steps.tf-outputs.outputs.cloudfront_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **S3 Bucket**: ${{ steps.tf-outputs.outputs.frontend_bucket }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **CloudFront Distribution**: ${{ steps.tf-outputs.outputs.cloudfront_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend Services" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Gateway**: ${{ steps.tf-outputs.outputs.api_gateway_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Student Service**: \`${{ steps.tf-outputs.outputs.api_gateway_url }}/student\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Admin Service**: \`${{ steps.tf-outputs.outputs.api_gateway_url }}/admin\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **External Service**: \`${{ steps.tf-outputs.outputs.api_gateway_url }}/external\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event Service**: \`${{ steps.tf-outputs.outputs.event_service_url }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Competition Service**: \`${{ steps.tf-outputs.outputs.competition_core_api_gateway_url }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Environment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Region**: ${{ env.AWS_REGION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed at**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
