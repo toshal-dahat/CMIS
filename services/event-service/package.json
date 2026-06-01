@@ -1,0 +1,34 @@
+{
+  "name": "cmis-event-service",
+  "version": "1.0.0",
+  "description": "CMIS Event Service: Handles event lifecycles, RSVPs, waitlists, and notifications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test-waitlist.js && node test-calendar.js",
+    "test:waitlist": "node test-waitlist.js",
+    "test:calendar": "node test-calendar.js",
+    "test:auth": "node test-auth-endpoints.js",
+    "test:lambda": "node test-lambda.js",
+    "test:lambda-prod": "node test-lambda-prod.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/client-eventbridge": "^3.1032.0",
+    "@aws-sdk/client-ses": "^3.1016.0",
+    "@aws-sdk/client-sns": "^3.1037.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
+    "aws-jwt-verify": "^5.1.1",
+    "express": "^4.18.2",
+    "serverless-http": "^3.2.0",
+    "uuid": "^10.0.0"
+  },
+  "keywords": [
+    "lambda",
+    "event",
+    "serverless",
+    "dynamodb"
+  ],
+  "author": "",
+  "license": "MIT"
+}
