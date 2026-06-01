@@ -1,0 +1,54 @@
+# Deployment package: zip events-service (run npm install there first)
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/${var.events_service_path}"
+  output_path = "${path.module}/build/event-service.zip"
+  excludes    = [".git", "*.md", "docs", "node_modules/.cache"]
+}
+
+data "aws_caller_identity" "current" {}
+
+# Shared environment for all Lambdas
+locals {
+  lambda_env = {
+    EVENTS_TABLE            = aws_dynamodb_table.events.name
+    RSVP_TABLE              = aws_dynamodb_table.rsvps.name
+    SURVEY_TEMPLATES_TABLE  = aws_dynamodb_table.survey_templates.name
+    SURVEY_RESPONSES_TABLE  = aws_dynamodb_table.survey_responses.name
+    COGNITO_USER_POOL_ID    = var.cognito_user_pool_id
+    COGNITO_CLIENT_ID       = var.cognito_client_id
+    DOMAIN_API_URL          = var.domain_api_url
+    CONFIG_API_URL          = var.config_api_url
+    COGNITO_GROUP_STUDENTS  = "students"
+    COGNITO_GROUP_INVESTORS = "investors"
+    COGNITO_GROUP_FRIENDS   = "friends"
+    SES_VERIFIED_SENDER     = var.ses_verified_sender
+    FRONTEND_URL            = var.frontend_url
+    STUDENT_PROFILES_TABLE  = var.student_profiles_table_name
+    AWS_ACCOUNT_ID          = data.aws_caller_identity.current.account_id
+    REMINDER_RULE_PREFIX    = var.reminder_rule_prefix
+  }
+}
+
+# --- Events: CRUD ---
+resource "aws_lambda_function" "events_crud" {
+  function_name    = "events-core-crud-${var.stage}"
+  role             = var.lambda_role_arn
+  runtime          = var.lambda_node_runtime
+  handler          = "index.handler"
+  filename         = data.archive_file.lambda_zip.output_path
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+
+  environment {
+    variables = local.lambda_env
+  }
+
+  timeout = 30
+}
+
+resource "aws_lambda_event_source_mapping" "rsvp_stream" {
+  event_source_arn  = aws_dynamodb_table.rsvps.stream_arn
+  function_name     = aws_lambda_function.events_crud.arn
+  starting_position = "LATEST"
+}
+
